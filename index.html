@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Apple Cash: Global Access Protocol</title>
+    <style>
+        :root {
+            --apple-green: #32d74b;
+            --apple-blue: #0a84ff;
+            --bg: #000000;
+            --card-bg: rgba(28, 28, 30, 0.8);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, system-ui, sans-serif; }
+        
+        body {
+            background: var(--bg);
+            color: #fff;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Динамический фон в стиле "Матрица Apple" */
+        #canvas-overlay {
+            position: fixed; top: 0; left: 0; z-index: -1;
+            width: 100%; height: 100%; opacity: 0.2;
+        }
+
+        .container { max-width: 480px; margin: 0 auto; padding: 20px; }
+
+        header { padding: 40px 0 20px; text-align: center; }
+        .logo-cash {
+            width: 80px; height: 80px; margin: 0 auto 20px;
+            background: linear-gradient(135deg, #111, #000);
+            border-radius: 20px; border: 1px solid var(--apple-green);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 30px rgba(50, 215, 75, 0.3);
+            font-weight: 900; color: var(--apple-green); font-size: 24px;
+        }
+
+        /* Интерактивный симулятор устройства */
+        .device-simulator {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 32px;
+            padding: 24px;
+            margin-bottom: 30px;
+            position: sticky; top: 10px; z-index: 100;
+        }
+
+        .iphone-mini {
+            width: 120px; height: 220px; border: 4px solid #333;
+            border-radius: 24px; margin: 0 auto 15px; position: relative;
+            background: #050505; overflow: hidden;
+        }
+
+        .touch-indicator {
+            position: absolute; width: 30px; height: 30px;
+            background: rgba(50, 215, 75, 0.4); border: 2px solid var(--apple-green);
+            border-radius: 50%; display: none; z-index: 10;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
+
+        /* Текстовые блоки с мануалом */
+        .manual-step {
+            margin-bottom: 25px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 24px;
+            border-left: 4px solid var(--apple-green);
+            transition: 0.3s;
+        }
+
+        .step-tag { font-size: 11px; font-weight: 900; color: var(--apple-green); text-transform: uppercase; margin-bottom: 8px; display: block; }
+        h3 { font-size: 20px; margin-bottom: 12px; letter-spacing: -0.5px; }
+        p { font-size: 15px; color: #a1a1a6; line-height: 1.6; }
+
+        .tech-detail {
+            background: rgba(0,0,0,0.4); border-radius: 12px;
+            padding: 12px; margin-top: 15px; font-size: 13px; color: #8e8e93;
+            border: 1px dashed #333;
+        }
+
+        /* Кнопки управления */
+        .controls { display: flex; gap: 12px; margin-top: 20px; }
+        .btn {
+            flex: 1; padding: 18px; border-radius: 16px; border: none;
+            font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s;
+        }
+        .btn-green { background: var(--apple-green); color: #000; }
+        .btn-dark { background: #2c2c2e; color: #fff; }
+        .btn:disabled { opacity: 0.3; }
+
+        /* Праздничный экран */
+        #victory {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999; flex-direction: column; 
+            justify-content: center; align-items: center; text-align: center; padding: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas-overlay"></canvas>
+
+<div class="container" id="main-flow">
+    <header>
+        <div class="logo-cash"> Cash</div>
+        <h1 style="font-size: 28px; letter-spacing: -1px;">Apple Cash Protocol</h1>
+        <p style="color: #8e8e93; font-size: 14px; margin-top: 5px;">Разблокировка Green Dot Bank для РФ</p>
+    </header>
+
+    <div class="device-simulator">
+        <div class="iphone-mini">
+            <div id="hand" class="touch-indicator"></div>
+            <div style="padding: 10px; font-size: 8px; color: #333;">SETTINGS > WALLET</div>
+        </div>
+        <div id="sim-text" style="text-align: center; font-size: 13px; font-weight: 600; color: var(--apple-green);">СИСТЕМА ГОТОВА</div>
+    </div>
+
+    <div id="step-area">
+        </div>
+
+    <div class="controls">
+        <button class="btn btn-dark" id="prevBtn" onclick="nav(-1)" disabled>Назад</button>
+        <button class="btn btn-green" id="nextBtn" onclick="nav(1)">Далее</button>
+    </div>
+</div>
+
+<div id="victory">
+    <div style="font-size: 80px; margin-bottom: 20px;">💵</div>
+    <h1 style="font-size: 36px; color: var(--apple-green); margin-bottom: 15px;">САНКЦИИ В УТИЛЬ!</h1>
+    <p style="font-size: 18px; line-height: 1.5; color: #d1d1d6; max-width: 400px;">
+        Вы официально активировали <b>Apple Cash</b> в обход всех блокировок. Теперь вы можете принимать доллары, отправлять их через iMessage и оплачивать покупки прямо с баланса Apple.
+    </p>
+    <div style="margin-top: 30px; padding: 15px; border: 1px solid var(--apple-green); border-radius: 12px; color: var(--apple-green); font-weight: 800;">
+        ВЫ ВЫЕБАЛИ СИСТЕМУ ПИНДОСОВ!
+    </div>
+    <button class="btn btn-green" style="margin-top: 40px; width: 200px;" onclick="location.reload()">ТРИУМФ</button>
+</div>
+
+<script>
+    const steps = [
+        {
+            title: "Региональная маскировка",
+            desc: "Зайди в Настройки → Основные → Язык и регион. Установи 'Соединенные Штаты'. Apple Cash — это продукт только для рынка США.",
+            tech: "ЗАЧЕМ: Приложение Wallet активирует скрытый модуль 'Apple Cash Services' только если системный регион совпадает с лицензией банка Green Dot.",
+            hand: { t: '30px', l: '45px' }
+        },
+        {
+            title: "Физический Bypass",
+            desc: "Извлеки сим-карту. Если оставить РФ-симку, Apple Pay передаст идентификатор сети (MCC 250), и кнопка активации Cash исчезнет.",
+            tech: "ЗАЧЕМ: Банковский шлюз сверяет регион настройки с регионом сотовой сети. Нет сети — нет блокировки.",
+            hand: { t: '120px', l: '80px' }
+        },
+        {
+            title: "Сетевой туннель (US)",
+            desc: "Включи качественный VPN с локацией в США. Проверь на whatismyip.com, чтобы DNS также был американским.",
+            tech: "ЗАЧЕМ: Apple Cash требует постоянного соединения с серверами iMessage в США для верификации транзакций.",
+            hand: { t: '60px', l: '20px' }
+        },
+        {
+            title: "Инициализация Cash",
+            desc: "Зайди в Wallet, нажми 'Apple Cash' и 'Настроить'. Используй данные любого американского адреса (возьми из Google Maps).",
+            tech: "ЗАЧЕМ: На этом этапе создается виртуальный банковский счет. Если спросит SSN — жми 'Подтвердить позже'.",
+            hand: { t: '150px', l: '45px' }
+        }
+    ];
+
+    let current = 0;
+
+    function render() {
+        const s = steps[current];
+        document.getElementById('step-area').innerHTML = `
+            <div class="manual-step">
+                <span class="step-tag">Phase 0${current + 1}</span>
+                <h3>${s.title}</h3>
+                <p>${s.desc}</p>
+                <div class="tech-detail">${s.tech}</div>
+            </div>
+        `;
+        const hand = document.getElementById('hand');
+        hand.style.display = 'block';
+        hand.style.top = s.hand.t;
+        hand.style.left = s.hand.l;
+        document.getElementById('sim-text').innerText = `STEP: ${current + 1} / 4`;
+        document.getElementById('prevBtn').disabled = current === 0;
+        document.getElementById('nextBtn').innerText = current === steps.length - 1 ? "ФИНАЛИЗИРОВАТЬ" : "Далее";
+    }
+
+    function nav(dir) {
+        current += dir;
+        if (current >= steps.length) {
+            document.getElementById('main-flow').style.display = 'none';
+            document.getElementById('victory').style.display = 'flex';
+            return;
+        }
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Оптимизированный фон
+    const canvas = document.getElementById('canvas-overlay');
+    const ctx = canvas.getContext('2d');
+    function init() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    function draw() {
+        ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = '#32d74b';
+        for(let i=0; i<15; i++) ctx.fillRect(Math.random()*canvas.width, Math.random()*canvas.height, 2, 2);
+        requestAnimationFrame(draw);
+    }
+    init(); draw(); render();
+</script>
+
+</body>
+</html>
